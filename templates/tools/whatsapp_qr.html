@@ -1,0 +1,28 @@
+{% set tool_emoji = "💬" %}{% set tool_type = "whatsapp" %}
+{% extends "tools/tool_base.html" %}
+{% block tool_form %}
+<div class="step-label">
+    <span class="step-number">1</span>
+    <span class="step-text" data-en="Enter WhatsApp Number" data-ur="واٹس ایپ نمبر درج کریں">Enter WhatsApp
+        Number</span>
+</div>
+<div class="form-group">
+    <label>WhatsApp Number (with country code)</label>
+    <input type="tel" class="form-control" id="phoneInput" placeholder="+923001234567" required>
+    <div class="form-hint">Include country code: +92 for Pakistan, +1 for USA, etc.</div>
+</div>
+<div class="form-group">
+    <label>Pre-filled Message (Optional)</label>
+    <textarea class="form-control" id="msgInput" placeholder="Hi! I saw your QR code and want to know more about..."
+        rows="3"></textarea>
+</div>
+{% endblock %}
+{% block tool_script %}
+<script>
+    function generateQR() {
+        const phone = document.getElementById('phoneInput').value.trim();
+        if (!phone) { showToast('⚠️ Enter WhatsApp number'); return; }
+        postQR('/generate-whatsapp-qr', { phone, message: document.getElementById('msgInput').value, ...getColors() });
+    }
+</script>
+{% endblock %}

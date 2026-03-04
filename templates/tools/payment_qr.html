@@ -1,0 +1,36 @@
+{% set tool_emoji = "💳" %}{% set tool_type = "payment" %}
+{% extends "tools/tool_base.html" %}
+{% block tool_form %}
+<div class="step-label">
+    <span class="step-number">1</span>
+    <span class="step-text" data-en="Payment Account Details" data-ur="ادائیگی اکاؤنٹ کی تفصیلات">Payment Account
+        Details</span>
+</div>
+<div class="form-group">
+    <label>Account Holder Name</label>
+    <input type="text" class="form-control" id="payName" placeholder="Muhammad Ali">
+</div>
+<div class="form-group">
+    <label>Account / Mobile Number *</label>
+    <input type="text" class="form-control" id="payId" placeholder="03001234567 or UPI ID" required>
+</div>
+<div class="form-group">
+    <label>Payment Provider</label>
+    <select class="form-control" id="payProvider">
+        <option value="easypaisa">Easypaisa</option>
+        <option value="jazzcash">JazzCash</option>
+        <option value="upi">UPI</option>
+        <option value="bank">Bank Account</option>
+        <option value="generic" selected>Other / Generic</option>
+    </select>
+</div>
+{% endblock %}
+{% block tool_script %}
+<script>
+    function generateQR() {
+        const pid = document.getElementById('payId').value.trim();
+        if (!pid) { showToast('⚠️ Enter account number'); return; }
+        postQR('/generate-payment-qr', { payment_id: pid, provider: document.getElementById('payProvider').value, name: document.getElementById('payName').value, ...getColors() });
+    }
+</script>
+{% endblock %}

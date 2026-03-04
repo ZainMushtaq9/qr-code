@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="padding: 40px 16px;">
+    <div
+        style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:24px;">
+        <h1 style="font-size:1.8rem; font-weight:800;">📋 My QR Code History</h1>
+        <button class="btn btn-secondary btn-sm" onclick="if(confirm('Clear all history?')) clearHistory();">🗑️ Clear
+            All</button>
+    </div>
+    <p style="color:var(--text-secondary); margin-bottom:24px;">Your QR codes are saved locally in your browser. No
+        account needed. They never leave your device.</p>
+
+    <div class="history-grid" id="historyGrid">
+        <!-- Rendered by history.js -->
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page_title | default(site_name) }}</title>
+  <meta name="description" content="{{ page_description | default('Free QR Code Generator — create QR codes for URL, WiFi, WhatsApp, Image, vCard and more. 100% free, no signup.') }}">
+  <link rel="canonical" href="{{ site_domain }}{{ page_url | default('/') }}">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ page_title | default(site_name) }}">
+  <meta property="og:description" content="{{ page_description | default('') }}">
+  <meta property="og:url" content="{{ site_domain }}{{ page_url | default('/') }}">
+  <meta property="og:site_name" content="{{ site_name }}">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ page_title | default(site_name) }}">
+  <meta name="twitter:description" content="{{ page_description | default('') }}">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  <!-- AdSense -->
+  {% if adsense_id %}
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ adsense_id }}" crossorigin="anonymous"></script>
+  {% endif %}
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "{{ site_name }}",
+    "url": "{{ site_domain }}",
+    "description": "Free online QR code generator with 12 QR types including Image QR, WiFi QR, WhatsApp QR, and more.",
+    "applicationCategory": "UtilityApplication",
+    "operatingSystem": "All",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "browserRequirements": "Requires JavaScript",
+    "inLanguage": ["en", "ur"]
+  }
+  </script>
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  <!-- ═══ NAVBAR ═══ -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="/" class="nav-brand">
+        <span class="logo-icon">📱</span>
+        <span>QR Code Studio</span>
+      </a>
+      <button class="nav-hamburger" id="navToggle" aria-label="Menu">☰</button>
+      <div class="nav-links" id="navLinks">
+        <a href="/" class="{% if page_url == '/' %}active{% endif %}">Home</a>
+        <a href="/qr/image" class="{% if page_url == '/qr/image' %}active{% endif %}">⭐ Image QR</a>
+        <a href="/history" class="{% if page_url == '/history' %}active{% endif %}">History</a>
+        <a href="/about" class="{% if page_url == '/about' %}active{% endif %}">About</a>
+        <button class="lang-toggle" id="langToggle" onclick="toggleLanguage()">
+          <span id="langLabel">EN / اردو</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══ TOP AD BANNER ═══ -->
+  {% if adsense_id and adsense_slot_banner %}
+  <div class="container">
+    <div class="ad-container ad-banner">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="{{ adsense_id }}" data-ad-slot="{{ adsense_slot_banner }}" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ═══ BOTTOM AD ═══ -->
+  {% if adsense_id and adsense_slot_banner %}
+  <div class="container">
+    <div class="ad-container ad-banner">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="{{ adsense_id }}" data-ad-slot="{{ adsense_slot_banner }}" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h3>📱 QR Code Studio</h3>
+          <p>Free QR Code Generator for everyone. Create beautiful QR codes in seconds. No signup, no payment, 100% free.</p>
+          <p class="urdu-text" style="margin-top:8px; font-size:0.85rem;">مفت QR کوڈ جنریٹر — سب کے لیے، ہمیشہ مفت</p>
+        </div>
+        <div class="footer-col">
+          <h4>QR Tools</h4>
+          <a href="/qr/image">📸 Image QR</a>
+          <a href="/qr/url">🌐 URL QR</a>
+          <a href="/qr/wifi">📶 WiFi QR</a>
+          <a href="/qr/whatsapp">💬 WhatsApp QR</a>
+          <a href="/qr/vcard">📞 vCard QR</a>
+          <a href="/qr/restaurant">🍽️ Menu QR</a>
+        </div>
+        <div class="footer-col">
+          <h4>More Tools</h4>
+          <a href="/qr/payment">💳 Payment QR</a>
+          <a href="/qr/location">📍 Location QR</a>
+          <a href="/qr/email">📧 Email QR</a>
+          <a href="/qr/app">📱 App QR</a>
+          <a href="/qr/pdf">📄 PDF QR</a>
+          <a href="/qr/text">📝 Text QR</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 QR Code Studio — Free forever</span>
+        <span>
+          <a href="/about">About</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a> · <a href="/disclaimer">Disclaimer</a>
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- JS -->
+  <script src="{{ url_for('static', filename='js/share.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/history.js') }}"></script>
+  <script>
+    // Nav toggle
+    document.getElementById('navToggle').addEventListener('click', () => {
+      document.getElementById('navLinks').classList.toggle('show');
+    });
+    // Language toggle
+    let currentLang = localStorage.getItem('lang') || 'en';
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'ur' : 'en';
+      localStorage.setItem('lang', currentLang);
+      document.querySelectorAll('[data-en]').forEach(el => {
+        el.textContent = currentLang === 'en' ? el.dataset.en : el.dataset.ur;
+      });
+      document.querySelectorAll('.urdu-only').forEach(el => {
+        el.style.display = currentLang === 'ur' ? 'block' : 'none';
+      });
+      document.querySelectorAll('.english-only').forEach(el => {
+        el.style.display = currentLang === 'en' ? 'block' : 'none';
+      });
+      document.getElementById('langLabel').textContent = currentLang === 'en' ? 'EN / اردو' : 'اردو / EN';
+    }
+    // Apply saved language
+    if (currentLang === 'ur') toggleLanguage();
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,164 @@
+{# ═══ Reusable simple QR tool template (no image upload) ═══ #}
+{# Used by: url, wifi, whatsapp, vcard, restaurant, payment, location, email, app, pdf, text #}
+
+{% extends "base.html" %}
+
+{% block head_extra %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {% for q, a in faqs %}
+    { "@type": "Question", "name": "{{ q }}", "acceptedAnswer": { "@type": "Answer", "text": "{{ a }}" } }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container tool-page">
+    <div class="breadcrumb">
+        <a href="/">Home</a> <span>›</span> <span>{{ meta.h1 }}</span>
+    </div>
+    <div class="tool-layout">
+        <div class="tool-main">
+            <div class="tool-header">
+                <h1>{{ tool_emoji }} {{ meta.h1 }}</h1>
+                <p class="tool-h1-urdu">{{ meta.h1_ur }}</p>
+            </div>
+
+            <form id="qrForm" class="form-card" onsubmit="event.preventDefault(); generateQR();">
+                {% block tool_form %}{% endblock %}
+
+                <!-- Colors (shared) -->
+                <div style="margin-top:20px;">
+                    <div class="step-label">
+                        <span class="step-number">🎨</span>
+                        <span class="step-text">Customize Colors (Optional)</span>
+                    </div>
+                    <div class="color-row">
+                        <div class="color-group">
+                            <label>QR Color</label>
+                            <div class="color-input-wrap">
+                                <input type="color" id="fgColor" value="#000000">
+                                <input type="text" id="fgHex" value="#000000" maxlength="7">
+                            </div>
+                        </div>
+                        <div class="color-group">
+                            <label>Background</label>
+                            <div class="color-input-wrap">
+                                <input type="color" id="bgColor" value="#FFFFFF">
+                                <input type="text" id="bgHex" value="#FFFFFF" maxlength="7">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="preset-colors mt-1">
+                        <span class="preset-color" style="background:#000000" onclick="setC('#000000')"></span>
+                        <span class="preset-color" style="background:#1a1a2e" onclick="setC('#1a1a2e')"></span>
+                        <span class="preset-color" style="background:#e63946" onclick="setC('#e63946')"></span>
+                        <span class="preset-color" style="background:#2d6a4f" onclick="setC('#2d6a4f')"></span>
+                        <span class="preset-color" style="background:#457b9d" onclick="setC('#457b9d')"></span>
+                        <span class="preset-color" style="background:#6a0572" onclick="setC('#6a0572')"></span>
+                        <span class="preset-color" style="background:#f77f00" onclick="setC('#f77f00')"></span>
+                        <span class="preset-color" style="background:#264653" onclick="setC('#264653')"></span>
+                    </div>
+                    <div class="shape-options mt-2">
+                        <label class="shape-option selected" onclick="selShape(this,'square')"><input type="radio"
+                                name="dot_shape" value="square" checked> ■ Square</label>
+                        <label class="shape-option" onclick="selShape(this,'circle')"><input type="radio"
+                                name="dot_shape" value="circle"> ● Round</label>
+                        <label class="shape-option" onclick="selShape(this,'gapped')"><input type="radio"
+                                name="dot_shape" value="gapped"> ⊞ Gapped</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success btn-lg btn-block mt-3" id="genBtn">✅ Generate QR
+                    Code</button>
+            </form>
+
+            <div class="spinner" id="spinner">
+                <div class="spinner-circle"></div>
+                <div class="spinner-text">Generating your QR code...</div>
+            </div>
+
+            <div class="result-card" id="resultCard">
+                <h3 style="margin-bottom:16px;">🎉 Your QR Code is Ready!</h3>
+                <div class="result-qr"><img id="resultImg" src="" alt="Generated QR Code"></div>
+                <div class="result-actions">
+                    <button class="btn btn-primary" onclick="downloadQR(curB64, '{{ tool_type }}-qr')">📥 Download
+                        PNG</button>
+                    <button class="btn btn-secondary" onclick="downloadQRasPDF(curB64, '{{ tool_type }}-qr')">📄
+                        Download PDF</button>
+                    <button class="btn btn-whatsapp" onclick="shareOnWhatsApp()">📱 WhatsApp</button>
+                    <button class="btn btn-secondary" onclick="copyToClipboard(window.location.href)">🔗 Copy
+                        Link</button>
+                </div>
+                <button class="btn btn-secondary mt-2"
+                    onclick="document.getElementById('resultCard').classList.remove('show'); window.scrollTo({top:0,behavior:'smooth'});">🔄
+                    Make Another</button>
+            </div>
+
+            {% if adsense_id and adsense_slot_article %}
+            <div class="ad-container ad-banner mt-3">
+                <ins class="adsbygoogle" style="display:block" data-ad-client="{{ adsense_id }}"
+                    data-ad-slot="{{ adsense_slot_article }}" data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+            {% endif %}
+
+            <section class="faq-section">
+                <h2>❓ Frequently Asked Questions</h2>
+                {% for q, a in faqs %}
+                <div class="faq-item">
+                    <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">{{ q }}</div>
+                    <div class="faq-answer">{{ a }}</div>
+                </div>
+                {% endfor %}
+            </section>
+        </div>
+        <aside>
+            {% if adsense_id and adsense_slot_sidebar %}
+            <div class="ad-container ad-sidebar">
+                <ins class="adsbygoogle" style="display:block" data-ad-client="{{ adsense_id }}"
+                    data-ad-slot="{{ adsense_slot_sidebar }}" data-ad-format="auto"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+            {% endif %}
+        </aside>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let curB64 = '';
+    document.getElementById('fgColor').addEventListener('input', e => document.getElementById('fgHex').value = e.target.value);
+    document.getElementById('bgColor').addEventListener('input', e => document.getElementById('bgHex').value = e.target.value);
+    function setC(c) { document.getElementById('fgColor').value = c; document.getElementById('fgHex').value = c; }
+    function selShape(el, v) { document.querySelectorAll('.shape-option').forEach(s => s.classList.remove('selected')); el.classList.add('selected'); }
+    function getColors() { return { fg_color: document.getElementById('fgColor').value, bg_color: document.getElementById('bgColor').value, dot_shape: document.querySelector('input[name=dot_shape]:checked').value }; }
+
+    async function postQR(url, body) {
+        document.getElementById('spinner').classList.add('show');
+        document.getElementById('resultCard').classList.remove('show');
+        document.getElementById('genBtn').disabled = true;
+        try {
+            const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            const data = await res.json();
+            if (data.success) {
+                curB64 = data.image;
+                document.getElementById('resultImg').src = 'data:image/png;base64,' + data.image;
+                document.getElementById('resultCard').classList.add('show');
+                saveToHistory('{{ tool_type }}', JSON.stringify(body).substring(0, 100), data.image);
+                showToast('🎉 QR Code generated!');
+            } else { showToast('❌ ' + (data.error || 'Failed')); }
+        } catch (e) { showToast('❌ Network error'); }
+        document.getElementById('spinner').classList.remove('show');
+        document.getElementById('genBtn').disabled = false;
+    }
+</script>
+{% block tool_script %}{% endblock %}
+{% endblock %}

@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+
+{% block head_extra %}
+<!-- FAQ Schema for rich snippets -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {% for q, a in faqs %}
+    {
+      "@type": "Question",
+      "name": "{{ q }}",
+      "acceptedAnswer": { "@type": "Answer", "text": "{{ a }}" }
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container tool-page">
+    <div class="breadcrumb">
+        <a href="/">Home</a> <span>›</span> <span>{{ meta.h1 }}</span>
+    </div>
+
+    <div class="tool-layout">
+        <div class="tool-main">
+            <div class="tool-header">
+                <h1>📸 {{ meta.h1 }}</h1>
+                <p class="tool-h1-urdu">{{ meta.h1_ur }}</p>
+            </div>
+
+            <!-- STEP 1: Upload Image -->
+            <div class="form-card">
+                <div class="step-label">
+                    <span class="step-number">1</span>
+                    <div>
+                        <span class="step-text" data-en="Upload Your Image (Logo or Photo)"
+                            data-ur="اپنی تصویر یا لوگو اپ لوڈ کریں">Upload Your Image (Logo or Photo)</span>
+                        <span class="step-text-urdu">اپنی تصویر یا لوگو اپ لوڈ کریں</span>
+                    </div>
+                </div>
+
+                <div class="upload-box" id="uploadBox">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">Tap to upload or drag your image</div>
+                    <div class="upload-hint">JPG, PNG, WEBP — Max 5MB</div>
+                    <input type="file" id="imageInput" accept="image/jpeg,image/png,image/webp" capture="environment">
+                </div>
+                <div class="upload-preview" id="uploadPreview">
+                    <img id="previewImg" src="" alt="Preview">
+                </div>
+            </div>
+
+            <!-- STEP 2: QR Data -->
+            <div class="form-card">
+                <div class="step-label">
+                    <span class="step-number">2</span>
+                    <div>
+                        <span class="step-text" data-en="What should this QR open?" data-ur="یہ QR کہاں جائے گا؟">What
+                            should this QR open?</span>
+                        <span class="step-text-urdu">یہ QR کہاں جائے گا؟</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" id="qrData"
+                        placeholder="Paste your website link, WhatsApp number, or any URL">
+                    <div class="form-hint">Examples: https://yoursite.com · wa.me/92300xxxxxxx · youtube.com/yourchannel
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3: Style -->
+            <div class="form-card">
+                <div class="step-label">
+                    <span class="step-number">3</span>
+                    <div>
+                        <span class="step-text" data-en="Choose Style" data-ur="اسٹائل منتخب کریں">Choose Style</span>
+                        <span class="step-text-urdu">اسٹائل منتخب کریں</span>
+                    </div>
+                </div>
+                <div class="style-options">
+                    <label class="style-option selected" onclick="selectStyle(this, 'center')">
+                        <input type="radio" name="style" value="center" checked>
+                        <div class="style-icon">🎯</div>
+                        <div class="style-name">Image in Center</div>
+                    </label>
+                    <label class="style-option" onclick="selectStyle(this, 'background')">
+                        <input type="radio" name="style" value="background">
+                        <div class="style-icon">🖼️</div>
+                        <div class="style-name">Image as Background</div>
+                    </label>
+                    <label class="style-option" onclick="selectStyle(this, 'blend')">
+                        <input type="radio" name="style" value="blend">
+                        <div class="style-icon">🎨</div>
+                        <div class="style-name">Color Blend</div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- STEP 4: Colors -->
+            <div class="form-card">
+                <div class="step-label">
+                    <span class="step-number">4</span>
+                    <div>
+                        <span class="step-text" data-en="Customize Colors (Optional)"
+                            data-ur="رنگ تبدیل کریں (اختیاری)">Customize Colors (Optional)</span>
+                    </div>
+                </div>
+                <div class="color-row">
+                    <div class="color-group">
+                        <label>QR Color</label>
+                        <div class="color-input-wrap">
+                            <input type="color" id="fgColor" value="#000000">
+                            <input type="text" id="fgHex" value="#000000" maxlength="7">
+                        </div>
+                    </div>
+                    <div class="color-group">
+                        <label>Background</label>
+                        <div class="color-input-wrap">
+                            <input type="color" id="bgColor" value="#FFFFFF">
+                            <input type="text" id="bgHex" value="#FFFFFF" maxlength="7">
+                        </div>
+                    </div>
+                </div>
+                <div class="preset-colors mt-1">
+                    <span class="preset-color" style="background:#000000" onclick="setFgColor('#000000')"></span>
+                    <span class="preset-color" style="background:#1a1a2e" onclick="setFgColor('#1a1a2e')"></span>
+                    <span class="preset-color" style="background:#e63946" onclick="setFgColor('#e63946')"></span>
+                    <span class="preset-color" style="background:#2d6a4f" onclick="setFgColor('#2d6a4f')"></span>
+                    <span class="preset-color" style="background:#457b9d" onclick="setFgColor('#457b9d')"></span>
+                    <span class="preset-color" style="background:#6a0572" onclick="setFgColor('#6a0572')"></span>
+                    <span class="preset-color" style="background:#f77f00" onclick="setFgColor('#f77f00')"></span>
+                    <span class="preset-color" style="background:#264653" onclick="setFgColor('#264653')"></span>
+                </div>
+            </div>
+
+            <!-- GENERATE BUTTON -->
+            <button class="btn btn-success btn-lg btn-block" id="generateBtn" onclick="generateImageQR()">
+                ✅ Generate My QR Code
+            </button>
+            <p class="text-center mt-1 urdu-text" style="font-size:0.9rem; color:var(--text-secondary);">QR کوڈ بنائیں
+            </p>
+
+            <!-- SPINNER -->
+            <div class="spinner" id="spinner">
+                <div class="spinner-circle"></div>
+                <div class="spinner-text">Creating your beautiful QR code...</div>
+            </div>
+
+            <!-- RESULT -->
+            <div class="result-card" id="resultCard">
+                <h3 style="margin-bottom:16px;">🎉 Your Image QR Code is Ready!</h3>
+                <div class="result-qr">
+                    <img id="resultImg" src="" alt="Generated Image QR Code">
+                </div>
+                <div class="result-actions">
+                    <button class="btn btn-primary" onclick="downloadQR(currentQRBase64, 'image-qr')">📥 Download
+                        PNG</button>
+                    <button class="btn btn-secondary" onclick="downloadQRasPDF(currentQRBase64, 'image-qr')">📄 Download
+                        PDF</button>
+                    <button class="btn btn-whatsapp"
+                        onclick="shareOnWhatsApp('I made this awesome Image QR Code for free! Try it: ' + window.location.href)">📱
+                        Share on WhatsApp</button>
+                    <button class="btn btn-secondary" onclick="copyToClipboard(window.location.href)">🔗 Copy
+                        Link</button>
+                </div>
+                <button class="btn btn-secondary mt-2" onclick="resetForm()">🔄 Make Another QR Code</button>
+            </div>
+
+            <!-- ═══ IN ARTICLE AD ═══ -->
+            {% if adsense_id and adsense_slot_article %}
+            <div class="ad-container ad-banner mt-3">
+                <ins class="adsbygoogle" style="display:block" data-ad-client="{{ adsense_id }}"
+                    data-ad-slot="{{ adsense_slot_article }}" data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+            {% endif %}
+
+            <!-- FAQ Section -->
+            <section class="faq-section">
+                <h2>❓ Frequently Asked Questions</h2>
+                {% for q, a in faqs %}
+                <div class="faq-item">
+                    <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">{{ q }}</div>
+                    <div class="faq-answer">{{ a }}</div>
+                </div>
+                {% endfor %}
+            </section>
+        </div>
+
+        <!-- SIDEBAR (desktop) -->
+        <aside>
+            {% if adsense_id and adsense_slot_sidebar %}
+            <div class="ad-container ad-sidebar">
+                <ins class="adsbygoogle" style="display:block" data-ad-client="{{ adsense_id }}"
+                    data-ad-slot="{{ adsense_slot_sidebar }}" data-ad-format="auto"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+            {% endif %}
+        </aside>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let currentQRBase64 = '';
+    let selectedStyle = 'center';
+
+    // Image upload preview
+    document.getElementById('imageInput').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (ev) {
+                document.getElementById('previewImg').src = ev.target.result;
+                document.getElementById('uploadPreview').style.display = 'block';
+                document.getElementById('uploadBox').style.borderColor = 'var(--accent)';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Drag and drop
+    const uploadBox = document.getElementById('uploadBox');
+    uploadBox.addEventListener('dragover', (e) => { e.preventDefault(); uploadBox.classList.add('dragover'); });
+    uploadBox.addEventListener('dragleave', () => uploadBox.classList.remove('dragover'));
+    uploadBox.addEventListener('drop', (e) => {
+        e.preventDefault(); uploadBox.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            document.getElementById('imageInput').files = e.dataTransfer.files;
+            document.getElementById('imageInput').dispatchEvent(new Event('change'));
+        }
+    });
+
+    function selectStyle(el, style) {
+        document.querySelectorAll('.style-option').forEach(s => s.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedStyle = style;
+    }
+
+    // Color sync
+    document.getElementById('fgColor').addEventListener('input', e => document.getElementById('fgHex').value = e.target.value);
+    document.getElementById('bgColor').addEventListener('input', e => document.getElementById('bgHex').value = e.target.value);
+    document.getElementById('fgHex').addEventListener('input', e => { if (/^#[0-9a-f]{6}$/i.test(e.target.value)) document.getElementById('fgColor').value = e.target.value; });
+    document.getElementById('bgHex').addEventListener('input', e => { if (/^#[0-9a-f]{6}$/i.test(e.target.value)) document.getElementById('bgColor').value = e.target.value; });
+    function setFgColor(c) {
+        document.getElementById('fgColor').value = c;
+        document.getElementById('fgHex').value = c;
+    }
+
+    async function generateImageQR() {
+        const fileInput = document.getElementById('imageInput');
+        const qrData = document.getElementById('qrData').value.trim();
+
+        if (!fileInput.files[0]) { showToast('⚠️ Please upload an image first'); return; }
+        if (!qrData) { showToast('⚠️ Please enter the QR data (URL or text)'); return; }
+
+        const formData = new FormData();
+        formData.append('image', fileInput.files[0]);
+        formData.append('qr_data', qrData);
+        formData.append('style', selectedStyle);
+        formData.append('fg_color', document.getElementById('fgColor').value);
+        formData.append('bg_color', document.getElementById('bgColor').value);
+
+        document.getElementById('spinner').classList.add('show');
+        document.getElementById('resultCard').classList.remove('show');
+        document.getElementById('generateBtn').disabled = true;
+
+        try {
+            const res = await fetch('/generate-image-qr', { method: 'POST', body: formData });
+            const data = await res.json();
+            if (data.success) {
+                currentQRBase64 = data.image;
+                document.getElementById('resultImg').src = 'data:image/png;base64,' + data.image;
+                document.getElementById('resultCard').classList.add('show');
+                saveToHistory('Image QR', qrData, data.image);
+                showToast('🎉 QR Code generated!');
+            } else {
+                showToast('❌ Error: ' + (data.error || 'Generation failed'));
+            }
+        } catch (err) {
+            showToast('❌ Network error. Please try again.');
+        }
+        document.getElementById('spinner').classList.remove('show');
+        document.getElementById('generateBtn').disabled = false;
+    }
+
+    function resetForm() {
+        document.getElementById('resultCard').classList.remove('show');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+{% endblock %}

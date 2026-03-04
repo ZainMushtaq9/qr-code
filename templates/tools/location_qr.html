@@ -1,0 +1,42 @@
+{% set tool_emoji = "📍" %}{% set tool_type = "location" %}
+{% extends "tools/tool_base.html" %}
+{% block tool_form %}
+<div class="step-label">
+    <span class="step-number">1</span>
+    <span class="step-text" data-en="Enter Location" data-ur="مقام درج کریں">Enter Location</span>
+</div>
+<div class="form-group">
+    <label>Location Name (Optional)</label>
+    <input type="text" class="form-control" id="locLabel" placeholder="My Shop, Lahore">
+</div>
+<div class="form-group">
+    <label>Latitude *</label>
+    <input type="text" class="form-control" id="latInput" placeholder="31.5204" required>
+</div>
+<div class="form-group">
+    <label>Longitude *</label>
+    <input type="text" class="form-control" id="lngInput" placeholder="74.3587" required>
+    <div class="form-hint">Tip: Open Google Maps → right‑click your location → copy coordinates</div>
+</div>
+<button type="button" class="btn btn-secondary btn-sm mt-1" onclick="getMyLocation()">📍 Use My Current
+    Location</button>
+{% endblock %}
+{% block tool_script %}
+<script>
+    function getMyLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(p => {
+                document.getElementById('latInput').value = p.coords.latitude.toFixed(6);
+                document.getElementById('lngInput').value = p.coords.longitude.toFixed(6);
+                showToast('📍 Location detected!');
+            }, () => showToast('⚠️ Location access denied'));
+        } else showToast('⚠️ Geolocation not supported');
+    }
+    function generateQR() {
+        const lat = document.getElementById('latInput').value.trim();
+        const lng = document.getElementById('lngInput').value.trim();
+        if (!lat || !lng) { showToast('⚠️ Enter coordinates'); return; }
+        postQR('/generate-location-qr', { latitude: lat, longitude: lng, label: document.getElementById('locLabel').value, ...getColors() });
+    }
+</script>
+{% endblock %}

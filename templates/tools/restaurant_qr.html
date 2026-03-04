@@ -1,0 +1,28 @@
+{% set tool_emoji = "🍽️" %}{% set tool_type = "restaurant" %}
+{% extends "tools/tool_base.html" %}
+{% block tool_form %}
+<div class="step-label">
+    <span class="step-number">1</span>
+    <span class="step-text" data-en="Restaurant Menu Details" data-ur="ریسٹورنٹ مینیو کی تفصیلات">Restaurant Menu
+        Details</span>
+</div>
+<div class="form-group">
+    <label>Restaurant Name</label>
+    <input type="text" class="form-control" id="restName" placeholder="Khan's Restaurant">
+</div>
+<div class="form-group">
+    <label>Menu Link (URL) *</label>
+    <input type="url" class="form-control" id="menuUrl" placeholder="https://drive.google.com/your-menu-pdf" required>
+    <div class="form-hint">Paste a Google Drive link, your website menu page, or any URL where your menu is hosted.
+    </div>
+</div>
+{% endblock %}
+{% block tool_script %}
+<script>
+    function generateQR() {
+        const url = document.getElementById('menuUrl').value.trim();
+        if (!url) { showToast('⚠️ Enter menu URL'); return; }
+        postQR('/generate-restaurant-qr', { menu_url: url, restaurant_name: document.getElementById('restName').value, ...getColors() });
+    }
+</script>
+{% endblock %}

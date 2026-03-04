@@ -1,0 +1,23 @@
+{% set tool_emoji = "📝" %}{% set tool_type = "text" %}
+{% extends "tools/tool_base.html" %}
+{% block tool_form %}
+<div class="step-label">
+    <span class="step-number">1</span>
+    <span class="step-text" data-en="Enter Your Text" data-ur="اپنا ٹیکسٹ لکھیں">Enter Your Text</span>
+</div>
+<div class="form-group">
+    <label>Text / Message *</label>
+    <textarea class="form-control" id="textInput"
+        placeholder="Type any text, message, or information you want to encode..." rows="5" required></textarea>
+    <div class="form-hint">Maximum ~2000 characters for best scanning</div>
+</div>
+{% endblock %}
+{% block tool_script %}
+<script>
+    function generateQR() {
+        const text = document.getElementById('textInput').value.trim();
+        if (!text) { showToast('⚠️ Enter some text'); return; }
+        postQR('/generate-text-qr', { text, ...getColors() });
+    }
+</script>
+{% endblock %}

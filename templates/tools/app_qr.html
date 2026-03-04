@@ -1,0 +1,23 @@
+{% set tool_emoji = "📱" %}{% set tool_type = "app" %}
+{% extends "tools/tool_base.html" %}
+{% block tool_form %}
+<div class="step-label">
+    <span class="step-number">1</span>
+    <span class="step-text">App Download Link</span>
+</div>
+<div class="form-group">
+    <label>App Store / Play Store URL *</label>
+    <input type="url" class="form-control" id="appUrl" placeholder="https://play.google.com/store/apps/details?id=..."
+        required>
+    <div class="form-hint">Paste the link from Google Play Store or Apple App Store</div>
+</div>
+{% endblock %}
+{% block tool_script %}
+<script>
+    function generateQR() {
+        const url = document.getElementById('appUrl').value.trim();
+        if (!url) { showToast('⚠️ Enter app URL'); return; }
+        postQR('/generate-app-qr', { app_url: url, ...getColors() });
+    }
+</script>
+{% endblock %}

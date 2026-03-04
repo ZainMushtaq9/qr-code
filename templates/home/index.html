@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+  <!-- ═══ HERO ═══ -->
+  <section class="hero">
+    <h1 data-en="Make Your QR Code — FREE" data-ur="اپنا QR کوڈ مفت بنائیں">Make Your QR Code — FREE</h1>
+    <p class="hero-urdu">اپنا QR کوڈ مفت بنائیں</p>
+    <p class="hero-sub" data-en="No signup. No payment. Download in seconds. 12 QR code types for every need." data-ur="کوئی رجسٹریشن نہیں۔ کوئی ادائیگی نہیں۔ سیکنڈوں میں ڈاؤن لوڈ کریں۔">No signup. No payment. Download in seconds. 12 QR code types for every need.</p>
+    <div class="hero-badges">
+      <span class="hero-badge">✅ 100% Free</span>
+      <span class="hero-badge">🚀 No Signup</span>
+      <span class="hero-badge">📱 Works on Mobile</span>
+      <span class="hero-badge">🌐 12 QR Types</span>
+    </div>
+    <a href="/qr/image" class="btn btn-primary btn-lg">⭐ Try Image QR Code — Star Feature</a>
+  </section>
+
+  <!-- ═══ CATEGORY FILTER ═══ -->
+  <div class="category-filter" id="categoryFilter">
+    <button class="filter-chip active" data-category="all">All Tools</button>
+    <button class="filter-chip" data-category="image">📸 Image QR</button>
+    <button class="filter-chip" data-category="business">🏪 Business</button>
+    <button class="filter-chip" data-category="restaurant">🍽️ Restaurant</button>
+    <button class="filter-chip" data-category="personal">👤 Personal</button>
+  </div>
+
+  <!-- ═══ TOOL CARDS GRID ═══ -->
+  <div class="tools-grid" id="toolsGrid">
+    {% for tool in tools %}
+    <a href="{{ tool.url }}" class="tool-card {% if tool.star %}star-card{% endif %}" data-category="{{ tool.category }}">
+      {% if tool.star %}<span class="star-badge">⭐ STAR</span>{% endif %}
+      <span class="card-emoji">{{ tool.emoji }}</span>
+      <span class="card-name">{{ tool.name }}</span>
+      <span class="card-urdu">{{ tool.urdu }}</span>
+      <span class="card-desc">{{ tool.desc }}</span>
+      <span class="card-time">⏱ {{ tool.time }}</span>
+      <span class="card-btn">Use Free →</span>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- ═══ SEO CONTENT — helps Google rank this page ═══ -->
+<section class="container page-content" style="margin-top:20px;">
+  <h2 data-en="Free QR Code Generator Online — 12 Types" data-ur="مفت QR کوڈ جنریٹر آن لائن — 12 اقسام">Free QR Code Generator Online — 12 Types</h2>
+  <p>QR Code Studio is a <strong>free QR code generator</strong> that lets you create 12 different types of QR codes instantly. Whether you need a <strong>WiFi QR code</strong> for your cafe, a <strong>WhatsApp QR code</strong> for your business, or a stunning <strong>Image QR code</strong> with your logo embedded — we have you covered.</p>
+  <p>Our tools are used by shop owners, restaurants, freelancers, and students across Pakistan and worldwide. Every QR code generated is <strong>completely free</strong> — no signup, no hidden fees, no paid subscriptions.</p>
+  
+  <h2>What Makes QR Code Studio Different?</h2>
+  <p>Our star feature is the <strong>Image QR Code Generator</strong>. Upload your logo, product photo, or any image, and our tool creates a beautiful QR code with your image embedded inside it. The QR code still scans perfectly thanks to high error correction technology (Level H — 30% damage tolerance).</p>
+  <p>All our tools use <strong>100% free, open-source technology</strong>. No paid APIs, no cloud services, no monthly fees. Your data is processed securely and never stored on our servers.</p>
+
+  <h2>Popular QR Code Types</h2>
+  <ul>
+    <li><strong>Image QR Code</strong> — Upload logo/photo, get a branded QR code</li>
+    <li><strong>WiFi QR Code</strong> — Customers scan to connect WiFi automatically</li>
+    <li><strong>WhatsApp QR Code</strong> — Scan to start WhatsApp chat instantly</li>
+    <li><strong>vCard QR Code</strong> — Digital business card, scan to save contact</li>
+    <li><strong>Restaurant Menu QR</strong> — Table QR for digital menus</li>
+    <li><strong>Payment QR Code</strong> — Easypaisa, JazzCash, UPI payment QR</li>
+    <li><strong>URL QR Code</strong> — Link to any website</li>
+    <li><strong>Email QR Code</strong> — Scan to compose pre-filled email</li>
+    <li><strong>PDF QR Code</strong> — Link to any document or file</li>
+    <li><strong>Location QR Code</strong> — Open Google Maps location</li>
+    <li><strong>App Download QR</strong> — Link to Play Store or App Store</li>
+    <li><strong>Text QR Code</strong> — Encode any message as QR</li>
+  </ul>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Category filter
+document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    const cat = chip.dataset.category;
+    document.querySelectorAll('.tool-card').forEach(card => {
+      if (cat === 'all' || card.dataset.category === cat) {
+        card.style.display = '';
+        card.style.animation = 'fadeInUp 0.3s ease';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  });
+});
+</script>
+{% endblock %}

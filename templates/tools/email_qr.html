@@ -1,0 +1,29 @@
+{% set tool_emoji = "📧" %}{% set tool_type = "email" %}
+{% extends "tools/tool_base.html" %}
+{% block tool_form %}
+<div class="step-label">
+    <span class="step-number">1</span>
+    <span class="step-text">Email Details</span>
+</div>
+<div class="form-group">
+    <label>Email Address *</label>
+    <input type="email" class="form-control" id="emailInput" placeholder="contact@example.com" required>
+</div>
+<div class="form-group">
+    <label>Subject (Optional)</label>
+    <input type="text" class="form-control" id="subjectInput" placeholder="Inquiry about your services">
+</div>
+<div class="form-group">
+    <label>Message Body (Optional)</label>
+    <textarea class="form-control" id="bodyInput" placeholder="Hi, I would like to..." rows="3"></textarea>
+</div>
+{% endblock %}
+{% block tool_script %}
+<script>
+    function generateQR() {
+        const email = document.getElementById('emailInput').value.trim();
+        if (!email) { showToast('⚠️ Enter email'); return; }
+        postQR('/generate-email-qr', { email, subject: document.getElementById('subjectInput').value, body: document.getElementById('bodyInput').value, ...getColors() });
+    }
+</script>
+{% endblock %}

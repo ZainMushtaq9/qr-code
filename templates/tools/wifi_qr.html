@@ -1,0 +1,34 @@
+{% set tool_emoji = "📶" %}{% set tool_type = "wifi" %}
+{% extends "tools/tool_base.html" %}
+{% block tool_form %}
+<div class="step-label">
+    <span class="step-number">1</span>
+    <span class="step-text" data-en="Enter WiFi Details" data-ur="وائی فائی کی تفصیلات درج کریں">Enter WiFi
+        Details</span>
+</div>
+<div class="form-group">
+    <label>WiFi Network Name (SSID)</label>
+    <input type="text" class="form-control" id="ssidInput" placeholder="MyShopWifi" required>
+</div>
+<div class="form-group">
+    <label>Password</label>
+    <input type="text" class="form-control" id="passInput" placeholder="Enter WiFi password">
+</div>
+<div class="form-group">
+    <label>Security Type</label>
+    <select class="form-control" id="secInput">
+        <option value="WPA" selected>WPA / WPA2 (Most Common)</option>
+        <option value="WEP">WEP</option>
+        <option value="nopass">None (Open Network)</option>
+    </select>
+</div>
+{% endblock %}
+{% block tool_script %}
+<script>
+    function generateQR() {
+        const ssid = document.getElementById('ssidInput').value.trim();
+        if (!ssid) { showToast('⚠️ Enter WiFi name'); return; }
+        postQR('/generate-wifi-qr', { ssid, password: document.getElementById('passInput').value, security: document.getElementById('secInput').value, ...getColors() });
+    }
+</script>
+{% endblock %}

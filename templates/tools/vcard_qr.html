@@ -1,0 +1,41 @@
+{% set tool_emoji = "📞" %}{% set tool_type = "vcard" %}
+{% extends "tools/tool_base.html" %}
+{% block tool_form %}
+<div class="step-label">
+    <span class="step-number">1</span>
+    <span class="step-text">Enter Contact Details</span>
+</div>
+<div class="form-group">
+    <label>Full Name *</label>
+    <input type="text" class="form-control" id="nameInput" placeholder="Muhammad Ali" required>
+</div>
+<div class="form-group">
+    <label>Phone Number</label>
+    <input type="tel" class="form-control" id="phoneInput" placeholder="+923001234567">
+</div>
+<div class="form-group">
+    <label>Email</label>
+    <input type="email" class="form-control" id="emailInput" placeholder="ali@example.com">
+</div>
+<div class="form-group">
+    <label>Company / Organization</label>
+    <input type="text" class="form-control" id="companyInput" placeholder="Your Company Name">
+</div>
+<div class="form-group">
+    <label>Job Title</label>
+    <input type="text" class="form-control" id="titleInput" placeholder="Manager">
+</div>
+<div class="form-group">
+    <label>Website</label>
+    <input type="url" class="form-control" id="websiteInput" placeholder="https://yoursite.com">
+</div>
+{% endblock %}
+{% block tool_script %}
+<script>
+    function generateQR() {
+        const name = document.getElementById('nameInput').value.trim();
+        if (!name) { showToast('⚠️ Enter your name'); return; }
+        postQR('/generate-vcard-qr', { name, phone: document.getElementById('phoneInput').value, email: document.getElementById('emailInput').value, company: document.getElementById('companyInput').value, job_title: document.getElementById('titleInput').value, website: document.getElementById('websiteInput').value, ...getColors() });
+    }
+</script>
+{% endblock %}
