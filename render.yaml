@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: qr-code-studio
+    runtime: python
+    buildCommand: chmod +x render-build.sh && ./render-build.sh
+    startCommand: gunicorn run:app --bind 0.0.0.0:$PORT --workers 2
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: SITE_NAME
+        value: QR Code Studio
+      - key: SITE_DOMAIN
+        sync: false
+      - key: ADSENSE_ID
+        sync: false
+      - key: ADSENSE_SLOT_BANNER
+        sync: false
+      - key: ADSENSE_SLOT_SIDEBAR
+        sync: false
+      - key: ADSENSE_SLOT_ARTICLE
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: PYTHON_VERSION
+        value: "3.12.0"
