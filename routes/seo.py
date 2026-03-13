@@ -17,6 +17,7 @@ PAGES = [
     ("/qr/app", 0.8, "weekly"),
     ("/qr/pdf", 0.8, "weekly"),
     ("/qr/text", 0.8, "weekly"),
+    ("/qr/designer", 0.9, "daily"),
     ("/history", 0.5, "monthly"),
     ("/about", 0.4, "monthly"),
     ("/contact", 0.4, "monthly"),

@@ -1,7 +1,13 @@
-"""QR Code generation routes — 12 tool pages + API endpoints."""
-from flask import Blueprint, render_template, request, jsonify
+"""QR Code generation routes — 12 tool pages + designer + API endpoints."""
+import os, io
+import cv2
+import numpy as np
+from pyzbar.pyzbar import decode
+from PIL import Image
+from flask import Blueprint, render_template, request, jsonify, send_file, current_app
 from services import qr_generator
 from services.image_qr import generate_image_qr
+from services.shape_qr import generate_modern_qr, generate_modern_qr_svg
 
 qr_bp = Blueprint("qr", __name__)
 
@@ -390,3 +396,171 @@ def api_text_qr():
         text, data.get("fg_color", "#000000"), data.get("bg_color", "#FFFFFF"),
         data.get("dot_shape", "square"))
     return jsonify(result)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  MODERN DESIGNER QR — Star feature
+# ═══════════════════════════════════════════════════════════════
+
+DESIGNER_META = {
+    "title": "Modern QR Code Designer — Dots, Shapes, Logo & Art QR | QR Code Studio",
+    "description": "Create stunning modern QR codes with dot styles, shape masks (pizza, car, coffee), image art, gradient colors, and custom logos. 100% free with SVG export.",
+    "h1": "Modern QR Code Designer",
+    "h1_ur": "جدید QR کوڈ ڈیزائنر",
+    "keyword": "modern qr code designer free",
+}
+
+DESIGNER_FAQS = [
+    ("What is a Modern QR Code?", "A modern QR code replaces boring black squares with dots, lines, shapes, or even images — while staying 100% scannable."),
+    ("Will these designed QR codes still scan?", "Yes! We use Error Correction Level H (highest) which allows up to 30% of modules to be modified. Finder patterns (corner squares) are always protected."),
+    ("What shapes are available?", "Circle/Pizza, Heart, Car, Coffee Cup, Camera, Shopping Bag, Star, and Diamond — all generated automatically."),
+    ("Can I use my own image?", "Yes! Upload any logo or photo. Or pick a business category and we'll use a fitting default image."),
+    ("What is the SVG format?", "SVG is a vector format that scales infinitely without losing quality. Perfect for large print banners and signage."),
+    ("Is this really free?", "Yes, 100% free. No signup, no watermark, no hidden fees."),
+]
+
+# Business category defaults for users who don't want to upload
+BUSINESS_CATEGORIES = {
+    "car_wash": {"name": "Car Wash", "name_ur": "کار واش", "emoji": "🚗", "shape": "car", "fg": "#1a73e8", "bg": "#ffffff"},
+    "mobile_shop": {"name": "Mobile Shop", "name_ur": "موبائل شاپ", "emoji": "📱", "shape": "diamond", "fg": "#6a0572", "bg": "#ffffff"},
+    "computer_shop": {"name": "Computer Shop", "name_ur": "کمپیوٹر شاپ", "emoji": "💻", "shape": "diamond", "fg": "#264653", "bg": "#ffffff"},
+    "medical_shop": {"name": "Medical / Pharmacy", "name_ur": "میڈیکل اسٹور", "emoji": "💊", "shape": "heart", "fg": "#e63946", "bg": "#ffffff"},
+    "restaurant": {"name": "Restaurant", "name_ur": "ریسٹورنٹ", "emoji": "🍽️", "shape": "circle", "fg": "#d62828", "bg": "#fff3e0"},
+    "cafe": {"name": "Café / Coffee Shop", "name_ur": "کیفے", "emoji": "☕", "shape": "coffee", "fg": "#5d4037", "bg": "#fff8e1"},
+    "bakery": {"name": "Bakery / Sweets", "name_ur": "بیکری", "emoji": "🧁", "shape": "circle", "fg": "#d81b60", "bg": "#fce4ec"},
+    "salon": {"name": "Salon / Beauty", "name_ur": "سیلون", "emoji": "💇", "shape": "star", "fg": "#ad1457", "bg": "#fce4ec"},
+    "gym": {"name": "Gym / Fitness", "name_ur": "جم", "emoji": "🏋️", "shape": "diamond", "fg": "#1b5e20", "bg": "#e8f5e9"},
+    "real_estate": {"name": "Real Estate", "name_ur": "رئیل اسٹیٹ", "emoji": "🏠", "shape": "diamond", "fg": "#0d47a1", "bg": "#e3f2fd"},
+    "education": {"name": "School / Education", "name_ur": "اسکول / تعلیم", "emoji": "🎓", "shape": "star", "fg": "#ff6f00", "bg": "#fff3e0"},
+    "grocery": {"name": "Grocery Store", "name_ur": "کریانہ اسٹور", "emoji": "🛒", "shape": "shopping_bag", "fg": "#2e7d32", "bg": "#ffffff"},
+    "photography": {"name": "Photography", "name_ur": "فوٹوگرافی", "emoji": "📷", "shape": "camera", "fg": "#37474f", "bg": "#ffffff"},
+    "pizza": {"name": "Pizza Shop", "name_ur": "پیزا شاپ", "emoji": "🍕", "shape": "circle", "fg": "#e65100", "bg": "#fff3e0"},
+}
+
+
+@qr_bp.route("/qr/designer")
+def designer_qr_page():
+    meta = DESIGNER_META
+    faqs = DESIGNER_FAQS
+    return render_template("tools/designer_qr.html", meta=meta, faqs=faqs,
+                           categories=BUSINESS_CATEGORIES,
+                           page_title=meta["title"], page_description=meta["description"],
+                           page_url="/qr/designer")
+
+
+@qr_bp.route("/generate-designer-qr", methods=["POST"])
+def api_designer_qr():
+    """Modern designer QR generation — supports form data with optional file uploads."""
+    qr_data = request.form.get("qr_data", "")
+    if not qr_data:
+        return jsonify({"success": False, "error": "Enter the URL or data for QR code"}), 400
+
+    style = request.form.get("style", "dots")
+    shape = request.form.get("shape", "none")
+    fg_color = request.form.get("fg_color", "#000000")
+    bg_color = request.form.get("bg_color", "#FFFFFF")
+    gradient_color = request.form.get("gradient_color", "")
+    gradient_type = request.form.get("gradient_type", "linear")
+    frame_text = request.form.get("frame_text", "")
+    image_style = request.form.get("image_style", "overlay")
+    category = request.form.get("category", "")
+
+    # Handle logo upload
+    logo_file = None
+    if "logo" in request.files and request.files["logo"].filename:
+        logo_file = request.files["logo"].stream
+
+    # Handle image upload OR category default
+    image_file = None
+    if "image" in request.files and request.files["image"].filename:
+        image_file = request.files["image"].stream
+    elif category and category in BUSINESS_CATEGORIES:
+        # Use category defaults
+        cat = BUSINESS_CATEGORIES[category]
+        if not shape or shape == "none":
+            shape = cat["shape"]
+        if fg_color == "#000000":
+            fg_color = cat["fg"]
+        if bg_color == "#FFFFFF":
+            bg_color = cat["bg"]
+        if not frame_text:
+            frame_text = cat["name"]
+            
+        # Optional: attempt to load the default image if not manually uploaded
+        cat_img_path = os.path.join(current_app.static_folder, "category_images", f"{category}.png")
+        if os.path.exists(cat_img_path):
+            image_file = open(cat_img_path, "rb")
+
+    result = generate_modern_qr(
+        data=qr_data,
+        style=style,
+        shape=shape,
+        fg_color=fg_color,
+        bg_color=bg_color,
+        gradient_color=gradient_color,
+        gradient_type=gradient_type,
+        frame_text=frame_text,
+        logo_file=logo_file,
+        image_file=image_file,
+        image_style=image_style,
+    )
+    return jsonify(result)
+
+
+@qr_bp.route("/generate-designer-svg", methods=["POST"])
+def api_designer_svg():
+    """SVG export for modern QR codes."""
+    data = request.get_json() or request.form
+    qr_data = data.get("qr_data", "")
+    if not qr_data:
+        return jsonify({"success": False, "error": "QR data required"}), 400
+
+    result = generate_modern_qr_svg(
+        data=qr_data,
+        style=data.get("style", "dots"),
+        fg_color=data.get("fg_color", "#000000"),
+        bg_color=data.get("bg_color", "#FFFFFF"),
+        shape=data.get("shape", "none"),
+    )
+    if result["success"]:
+        return result["svg"], 200, {"Content-Type": "image/svg+xml",
+                                     "Content-Disposition": "attachment; filename=qr-code.svg"}
+    return jsonify(result), 400
+
+
+@qr_bp.route("/scan-qr", methods=["POST"])
+def api_scan_qr():
+    """Reads an uploaded QR code image and returns its decoded text."""
+    if "image" not in request.files:
+        return jsonify({"success": False, "error": "No image uploaded"}), 400
+    
+    file = request.files["image"]
+    if not file.filename:
+        return jsonify({"success": False, "error": "Empty file"}), 400
+        
+    try:
+        # Read the image via PIL first to handle various formats
+        img = Image.open(file.stream).convert('RGB')
+        
+        # Try decoding with pyzbar first
+        decoded_objects = decode(img)
+        if decoded_objects:
+            qr_data = decoded_objects[0].data.decode('utf-8')
+            return jsonify({"success": True, "data": qr_data})
+            
+        # Fallback to OpenCV if pyzbar fails
+        np_img = np.array(img)
+        # Convert RGB to BGR for OpenCV
+        cv_img = cv2.cvtColor(np_img, cv2.COLOR_RGB2BGR)
+        
+        detector = cv2.QRCodeDetector()
+        data, bbox, straight_qrcode = detector.detectAndDecode(cv_img)
+        
+        if data:
+            return jsonify({"success": True, "data": data})
+            
+        return jsonify({"success": False, "error": "Could not detect a valid QR code in the image. Please try a clearer image."}), 400
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": f"Error scanning image: {str(e)}"}), 500
+
